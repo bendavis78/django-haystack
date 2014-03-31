@@ -11,6 +11,7 @@ from haystack import connections
 from haystack.backends import BaseEngine, BaseSearchBackend, BaseSearchQuery, log_query, SearchNode
 from haystack.inputs import PythonData
 from haystack.models import SearchResult
+from haystack.utils import get_model_ct_tuple
 
 if settings.DEBUG:
     import logging
@@ -80,7 +81,8 @@ class SimpleSearchBackend(BaseSearchBackend):
 
                 for match in qs:
                     match.__dict__.pop('score', None)
-                    result = result_class(match._meta.app_label, match._meta.module_name, match.pk, 0, **match.__dict__)
+                    app_label, model_name = get_model_ct_tuple(match)
+                    result = result_class(app_label, model_name, match.pk, 0, **match.__dict__)
                     # For efficiency.
                     result._model = match.__class__
                     result._object = match
